@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "name": "now-django",
+  "builds": [{
+    "src": "now_build_staticfiles.sh",
+    "use": "@now/static-build",
+    "config": {
+      "distDir": "staticfiles_build"
+    }
+  }, {
+    "src": "src/wsgi.py",
+    "use": "@ardnt/now-python-wsgi",
+    "config": { 
+      "maxLambdaSize": "30mb" 
+    }
+  }],
+  "routes": [{
+    "src": "/static/(.*)",
+    "dest": "/static/$1"
+  }, {
+    "src": "/(.*)",
+    "dest": "src/wsgi.py"
+  }],
+  "env": {
+    "DEBUG": "@now_django_debug",
+    "TEMPLATE_DEBUG": "@now_django_template_debug",
+    "SECRET_KEY": "@now_django_secret_key",
+    "ALLOWED_HOSTS": "@now_django_allowed_hosts",
+
+    "DB_NAME": "@now_django_db_name",
+    "DB_USER": "@now_django_db_user",
+    "DB_PASS": "@now_django_db_pass",
+    "DB_HOST": "@now_django_db_host",
+
+    "AWS_ACCESS_KEY_ID": "@now_django_aws_access_key_id",
+    "AWS_SECRET_ACCESS_KEY": "@now_django_aws_secret_access_key",
+    "AWS_STORAGE_BUCKET_NAME": "@now_django_aws_storage_bucket_name"
+  }
+}
