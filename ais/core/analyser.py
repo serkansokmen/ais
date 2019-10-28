@@ -11,29 +11,22 @@ auth.set_access_token(settings.TWITTER_ACCESS_TOKEN,
 api = tweepy.API(auth)
 
 
-def search_textblob(query):
+def analyze(tweet):
+    analyser = SentimentIntensityAnalyzer()
+    score = analyser.polarity_scores(tweet.text)
+    sentiment = textblob.TextBlob(tweet.text).sentiment
+    return {
+        'text': tweet.text,
+        'compound': score['compound'],
+        'positive': score['pos'],
+        'negative': score['neg'],
+        'neutral': score['neu'],
+        'polarity': sentiment.polarity,
+        'subjectivity': sentiment.subjectivity,
+    }
+
+
+def search(query):
     tweets = api.search(query)
 
-    def analyze(tweet):
-        polarity = textblob.TextBlob(tweet.text).sentiment.polarity
-        subjectivity = textblob.TextBlob(tweet.text).sentiment.subjectivity
-        return {
-            'tweet': tweet.text,
-            'polarity': polarity,
-            'subjectivity': subjectivity,
-        }
-
-    return map(analyze, tweets)
-
-
-def search_vader(query):
-    tweets = api.search(query)
-
-    def analyze(tweet):
-        analyser = SentimentIntensityAnalyzer()
-        score = analyser.polarity_scores(tweet.text)
-        return {
-            'tweet': tweet.text,
-            'score': score,
-        }
-    return map(analyze, tweets)
+    return list(map(analyze, tweets))

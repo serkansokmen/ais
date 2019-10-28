@@ -2,8 +2,15 @@ from rest_framework import viewsets, status, authentication, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .analyser import search_textblob, search_vader
-from .serializers import UserSerializer, QuestionSerializer
+from .serializers import AnalyticsSerializer, SentimentResultSerializer
+from .models import Question, SentimentResult
+from .analyser import search
+
+import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+import joblib
 
 
 class HelloView(APIView):
@@ -20,20 +27,41 @@ class SentimentView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
-        serializer = QuestionSerializer(data=request.data)
-        use_vader = request.query_params.get('use_vader')
-        if serializer.is_valid():
-            query = serializer.validated_data['query']
-            serializer.validated_data['user'] = request.user
-            serializer.save(user=request.user)
+        query = request.data.get('query', None)
+        results = []
 
-            if use_vader is not None:
-                results = search_vader(query)
-                return Response({"results": results},
-                                status=status.HTTP_200_OK)
-            else:
-                results = search_textblob(query)
-                return Response({"results": results},
-                                status=status.HTTP_200_OK)
-        return Response("Query required",
+        if query is not None:
+            instance, created = Question.objects.get_or_create(query=query,
+                                                               user=request.user,)
+            results = search(query)
+            for obj in instance.results.all():
+                obj.delete()
+            for result in results:
+                # tweet_data = result['tweet']
+                SentimentResult.objects.create(text=result['text'],
+                                               compound=result['compound'],
+                                               positive=result['positive'],
+                                               negative=result['negative'],
+                                               neutral=result['neutral'],
+                                               polarity=result['polarity'],
+                                               subjectivity=result['subjectivity'],
+                                               question=instance,)
+            serializer = AnalyticsSerializer(instance=instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("Data not in correct format",
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyCreditCardTransaction(APIView):
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, format=None):
+        vector = pd.DataFrame([request.json])
+        loaded_model = joblib.load(filename)
+        res = str(loaded_model.predict(vector)[0])
+        result = {
+            'id': 0,
+            'prediction': res
+        }
+        return Response(result, status=status.HTTP_200_OK)

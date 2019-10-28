@@ -93,6 +93,8 @@ DATABASES = {
     },
 }
 
+AUTH_USER_MODEL = 'core.User'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -141,6 +143,14 @@ STRIPE_TEST_SECRET_KEY = config('STRIPE_TEST_SECRET_KEY', '')
 STRIPE_LIVE_MODE = not DEBUG
 DJSTRIPE_WEBHOOK_SECRET = "whsec_xxx"  # Get it from the section in the Stripe dashboard where you added the webhook endpoint
 
+if DEBUG:
+    STRIPE_PUBLISH_KEY = STRIPE_TEST_PUBLIC_KEY
+    STRIPE_SECRET_KEY = STRIPE_TEST_SECRET_KEY
+else:
+    STRIPE_PUBLISH_KEY = STRIPE_LIVE_PUBLIC_KEY
+    STRIPE_SECRET_KEY = STRIPE_LIVE_SECRET_KEY
+
+FIREBASE_ADMIN_CREDENTIALS_PATH = config('FIREBASE_ADMIN_CREDENTIALS_PATH', '')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/

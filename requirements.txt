@@ -1,4 +1,10 @@
-Django >=2.1,<2.2
+Django>=2.1,<2.2
+keras
+numpy
+pandas
+sklearn
+joblib
+djangorestframework>=3.10.2
 pymongo
 djongo==1.2.23
 dnspython==1.16.0
@@ -12,3 +18,7 @@ textblob
 dj-stripe
 sqlparse==0.2.4
 vaderSentiment
+psycopg2
+onnxmltools
+onnxruntime
+keras2onnx

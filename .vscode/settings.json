@@ -1,7 +1,0 @@
-{
-  "python.pythonPath": "/Users/sokemon/.virtualenvs/ais/bin/python",
-  "editor.tabSize": 4,
-  "python.linting.pylintEnabled": false,
-  "python.linting.pep8Enabled": true,
-  "python.linting.enabled": true
-}
