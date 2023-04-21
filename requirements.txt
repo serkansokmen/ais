@@ -16,7 +16,7 @@ python-decouple
 tweepy
 textblob
 dj-stripe
-sqlparse==0.2.4
+sqlparse==0.4.4
 vaderSentiment
 psycopg2
 onnxmltools
